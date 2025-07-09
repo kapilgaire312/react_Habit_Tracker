@@ -2,7 +2,7 @@ import { useOutletContext } from 'react-router-dom';
 import { useState, useEffect } from 'react'
 
 
-function Home({ currentHabits, user, handleCompleted }) {
+function Home({ currentHabits, user, handleCompleted, setCurrentHabits }) {
   // const date = new Date(2025, 7, 20) // gives the last day of previous month and month is 0 based index
   // console.log(date.getDay()) gives weeks days in 0 index oredr
 
@@ -235,12 +235,25 @@ function Home({ currentHabits, user, handleCompleted }) {
 
   function storeCompletedDates() {
     let completedArr;
-    const storeName = `${months[selectedMonthLeft]}_${dates[0]}_${months[selectedMonthRight]}_${dates[6]}`
-    console.log('reflecting changes')
+    const storeName = `${user?.name?.first}${months[selectedMonthLeft]}_${dates[0]}_${months[selectedMonthRight]}_${dates[6]}`
 
-    if (isPresentWeekSelected) {
+    let isPresentWeek = false
+    console.log(dates)
+    dates.map((item) => {
+      console.log(item === today.day)
+
+      if ((item === today.day) && (selectedMonthLeft === today.month || selectedMonthRight === today.month)) {
+        isPresentWeek = true
+
+      }
+
+
+    })
+
+
+    if (isPresentWeek) {
       completedArr = currentHabits.map((item) => {
-        console.log(item.completionDays)
+
 
         return item.completionDays
 
@@ -249,49 +262,42 @@ function Home({ currentHabits, user, handleCompleted }) {
 
     }
     else {
+      console.log('not current week')
 
       const stored = localStorage.getItem(storeName);
+      console.log(stored)
       completedArr = stored ? JSON.parse(stored) : [];
 
-
-
-
-
-
-
-
-
-
     }
-    console.log(completedArr)
+
 
 
     localStorage.setItem(storeName, JSON.stringify(completedArr))
+    console.log(completedArr)
     setCurrWeekCompDates(completedArr)
 
   }
   useEffect(() => {
-    storeCompletedDates()
-
-
-
+    storeCompletedDates();
 
   }, [dates, currentHabits])
 
   useEffect(() => {
     let isPresentWeek = false
     dates.map((item) => {
+      console.log(item === today.day)
 
-      if (item === today.day && (selectedMonthLeft === today.month || selectedMonthRight === today.month)) {
-
+      if ((item === today.day) && (selectedMonthLeft === today.month || selectedMonthRight === today.month)) {
         isPresentWeek = true
 
       }
 
 
     })
-    console.log(isPresentWeek)
+
     setIsPresentWeekSelected(isPresentWeek)
+    // storeCompletedDates();
+
 
 
   }, [dates])
@@ -308,6 +314,33 @@ function Home({ currentHabits, user, handleCompleted }) {
 
   }
 
+  useEffect(() => {
+    console.log(currWeekCompDates)
+  }, [currWeekCompDates])
+
+  useEffect(() => {
+    let newHabits
+    const storeName = `is_adjusted_${user?.name?.first}_${months[selectedMonthLeft]}_${dates[0]}_${months[selectedMonthRight]}_${dates[6]}`
+
+    if (isPresentWeekSelected) {
+
+      if (today.day === dates[0]) {
+        const value = localStorage.getItem(storeName) || ''
+        if (value === '') {
+          console.log('not updated')
+          newHabits = currentHabits.map((item) => {
+            return ({ ...item, completionDays: [] })
+
+
+          })
+          setCurrentHabits(newHabits)
+          localStorage.setItem(storeName, 'updated')
+
+        }
+      }
+    }
+  }, [])
+
 
 
 
@@ -317,7 +350,7 @@ function Home({ currentHabits, user, handleCompleted }) {
 
 
       <div className='text-center my-6 font-bold text-2xl'>
-        <h1>Welcome {user.name.first} </h1>
+        <h1>Welcome {user?.name?.first} </h1>
         <hr></hr>
 
       </div>
@@ -352,7 +385,8 @@ function Home({ currentHabits, user, handleCompleted }) {
                 <p className='self-center'>{item.habit}</p>
                 {dates.map((date, dayIndex) => <button key={dayIndex} className={`border-2 h-10 w-10 justify-self-center ${handleReload(currWeekCompDates[index], date) ? ' bg-green-300' : null}`} onClick={(e) => { completedHandle(e, index, dayIndex, today, date) }}>   </button>)}
                 <p className='justify-self-center self-center'>{item.goal}</p>
-                <p className={`justify-self-center self-center ${item.goal <= currWeekCompDates[index]?.length ? 'bg-green-500' : null} w-full`}>{currWeekCompDates[index] ? currWeekCompDates[index].length : 0}</p>
+
+                <p className={`justify-self-center self-center  ${item.goal <= currWeekCompDates[index]?.length ? 'bg-green-500' : null} w-full`}>{currWeekCompDates[index] ? currWeekCompDates[index].length : 0}</p>
 
               </div>)
 

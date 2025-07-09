@@ -27,6 +27,7 @@ function LoginPage({ users }) {
     if (user.length === 1) {
 
       navigate('/dashboard', { state: user[0] })
+      window.location.reload()
       return true
     }
     else {

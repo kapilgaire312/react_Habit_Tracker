@@ -189,7 +189,7 @@ function App() {
           <Route path='/login' element={<LoginPage users={users} />} />
           <Route path='/signup' element={<SignUp users={users} setUsers={setUsers} />} />
           <Route path='/dashboard' element={<Dashboard currentUserSet={setIsCurrentUserSet} />}>
-            <Route index element={<Home currentHabits={userHabits} user={currentUser} handleCompleted={handleCompletion} />} />
+            <Route index element={<Home currentHabits={userHabits} user={currentUser} handleCompleted={handleCompletion} setCurrentHabits={setUserHabits} />} />
             <Route path='myhabits' element={<MyHabits currentHabits={userHabits} remove={removeHabit} setCurrentHabits={setUserHabits} />} />
             <Route path='addhabits' element={<AddHabits habitAdd={addHabit} />} />
           </Route>
