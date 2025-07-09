@@ -1,6 +1,7 @@
 import { useOutletContext } from 'react-router-dom';
 import { useState, useEffect } from 'react'
-
+import { getToday, getTotalDays } from '../utils/date.js'
+import { useWeekDates } from '../Hooks/useWeekDates.js'
 
 function Home({ currentHabits, user, handleCompleted, setCurrentHabits }) {
   // const date = new Date(2025, 7, 20) // gives the last day of previous month and month is 0 based index
@@ -13,7 +14,7 @@ function Home({ currentHabits, user, handleCompleted, setCurrentHabits }) {
   const today = getToday();
 
 
-  const [dates, setDates] = useState(getDates())
+  const [dates, setDates] = useWeekDates()
   const [selectedMonthLeft, setSelectedMonthLeft] = useState(today.month)
   const [selectedMonthRight, setSelectedMonthRight] = useState(today.month)
   const [topMessage, setTopMessage] = useState('');
@@ -58,69 +59,6 @@ function Home({ currentHabits, user, handleCompleted, setCurrentHabits }) {
 
 
 
-  function getDates() {
-    const today = getToday();
-
-
-    let dates = []
-    let count = 0;
-
-    let todayDay = today.day
-    for (let i = today.weekDay; i > -1; i--) {
-
-
-      if (todayDay - count < 1) {
-        todayDay = getTotalDays(today.month) + 1
-
-      }
-      dates[i] = todayDay - count;
-      count += 1;
-
-    }
-    count = 1
-    todayDay = today.day
-    for (let i = today.weekDay + 1; i < 7; i++) {
-
-
-      if (todayDay + count > getTotalDays(today.month + 1)) {
-        todayDay = 1
-        count = 0
-      }
-
-      dates[i] = todayDay + count;
-      count += 1;
-
-    }
-
-
-    return dates
-
-  }
-
-
-
-  function getToday() {
-    const date = new Date();
-    return {
-      day: date.getDate(),
-      month: date.getMonth(),
-      year: date.getFullYear(),
-      weekDay: date.getDay()
-
-    }
-
-  }
-
-  function getTotalDays(month) {
-    const today = getToday();
-    const date = new Date(today.year, month, 0);
-    const totaldays = date.getDate()
-
-
-
-    return totaldays
-
-  }
 
 
   function handleChangeDates(val) {
