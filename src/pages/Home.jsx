@@ -246,6 +246,7 @@ function Home({ currentHabits, user, handleCompleted, setCurrentHabits }) {
     if (isPresentWeekSelected) {
       const { isSelected, isInvalid } = handleCompleted(index, dayIndex, today);
       isSelected ? e.target.classList.add('bg-green-300') : e.target.classList.remove('bg-green-300');
+      isSelected ? e.target.textContent = '✓' : e.target.textContent = ''
       isInvalid ? setTopMessage('Cannot mark days in future or before the habit was added.') : setTopMessage('')
     }
     else {
@@ -322,10 +323,15 @@ function Home({ currentHabits, user, handleCompleted, setCurrentHabits }) {
 
 
           {currentHabits.map((item, index) => {
+            console.log(item.addedDate.day === dates[index])
+            console.log(item.addedDate.day)
+
+            console.log(today.day)
+
             return (
               <div key={index} className='contents text-center'>
                 <p className='self-center'>{item.habit}</p>
-                {dates.map((date, dayIndex) => <button key={dayIndex} className={`border-2 h-10 w-10 justify-self-center ${handleReload(currWeekCompDates[index], date) ? ' bg-green-300' : null}`} onClick={(e) => { completedHandle(e, index, dayIndex, today, date) }}>   </button>)}
+                {dates.map((date, dayIndex) => <button key={dayIndex} className={`border-2 h-10 w-10 justify-self-center ${handleReload(currWeekCompDates[index], date) ? ' bg-green-300' : null} ${(item.addedDate.day === date) && (item.addedDate.month === today.month || item.addedDate.month === selectedMonthLeft) ? 'border-gray-400' : null} `} onClick={(e) => { completedHandle(e, index, dayIndex, today, date) }}> {handleReload(currWeekCompDates[index], date) ? '✓' : ' '} </button>)}
                 <p className='justify-self-center self-center'>{item.goal}</p>
 
                 <p className={`justify-self-center self-center  ${item.goal <= currWeekCompDates[index]?.length ? 'bg-green-500' : null} w-full`}>{currWeekCompDates[index] ? currWeekCompDates[index].length : 0}</p>
