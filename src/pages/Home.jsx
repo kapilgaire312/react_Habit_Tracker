@@ -248,6 +248,10 @@ function Home({ currentHabits, user, handleCompleted, setCurrentHabits }) {
       isSelected ? e.target.classList.add('bg-green-300') : e.target.classList.remove('bg-green-300');
       isInvalid ? setTopMessage('Cannot mark days in future or before the habit was added.') : setTopMessage('')
     }
+    else {
+      setTopMessage('Cannot mark days in future or edit days of previous weeks.')
+
+    }
 
 
   }
