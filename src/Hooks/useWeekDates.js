@@ -11,7 +11,10 @@ export function useWeekDates() {
 
     for (let i = today.weekDay; i >= 0; i--) {
       if (todayDay - count < 1) {
-        todayDay = getTotalDays(today.month) + 1;
+        todayDay = getTotalDays(today.month)
+        count = 0
+
+
       }
       dates[i] = todayDay - count;
       count += 1;

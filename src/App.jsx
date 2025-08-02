@@ -133,6 +133,10 @@ function App() {
 
             todayWeekIndex--;
             todayDay--;
+            if (todayDay === 0) {
+              const lastDay = new Date(2025, today.month, 0)
+              todayDay = lastDay.getDate()
+            }
 
           }
           markedDate = todayDay;
@@ -142,25 +146,28 @@ function App() {
           return item
         }
 
-        if (markedDate < item.addedDate.day) {
+        if (markedDate < item.addedDate.day && item.addedDate.month >= today.month) {
+
           isInvalid = true
           return item
         }
         const completedArray = item.completionDays;
         let isAlreadyThere = false
         let newCompletedArray = completedArray?.filter((arrItem) => {
-          if (markedDate === arrItem) {
+          console.log(arrItem)
+          if (markedDate === arrItem.day) {
             isSelected = false
             isAlreadyThere = true
             return false
-
 
           }
           else return true
         })
 
         if (!isAlreadyThere) {
-          completedArray?.push(markedDate)
+          const month = today.day >= markedDate ? today.month : today.month - 1
+          completedArray?.push({ month, day: markedDate })
+          console.log(markedDate)
           newCompletedArray = completedArray;
           isSelected = true
         }

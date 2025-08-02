@@ -4,7 +4,7 @@ import { getToday, getTotalDays } from '../utils/date.js'
 import { useWeekDates } from '../Hooks/useWeekDates.js'
 
 function Home({ currentHabits, user, handleCompleted, setCurrentHabits }) {
-  // const date = new Date(2025, 7, 20) // gives the last day of previous month and month is 0 based index
+  // const date = new Date(2025, 7, 0) // gives the last day of previous month and month is 0 based index
   // console.log(date.getDay()) gives weeks days in 0 index oredr
 
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -145,7 +145,8 @@ function Home({ currentHabits, user, handleCompleted, setCurrentHabits }) {
 
   function handleReload(completedDays, dateToCheck) {
     const isTrue = completedDays?.filter((item) => {
-      if (item === dateToCheck) {
+
+      if (item.day === dateToCheck && (item.month === selectedMonthLeft || item.month === today.month)) {
 
         return true
 
@@ -171,17 +172,23 @@ function Home({ currentHabits, user, handleCompleted, setCurrentHabits }) {
   }, [topMessage])
 
 
+
   function storeCompletedDates() {
     let completedArr;
     const storeName = `${user?.name?.first}${months[selectedMonthLeft]}_${dates[0]}_${months[selectedMonthRight]}_${dates[6]}`
 
     let isPresentWeek = false
-    console.log(dates)
-    dates.map((item) => {
-      console.log(item === today.day)
+
+    dates.map((item, index) => {
+
 
       if ((item === today.day) && (selectedMonthLeft === today.month || selectedMonthRight === today.month)) {
-        isPresentWeek = true
+
+
+        if ((today.weekDay === index)) {
+          isPresentWeek = true
+
+        }
 
       }
 
@@ -190,20 +197,31 @@ function Home({ currentHabits, user, handleCompleted, setCurrentHabits }) {
 
 
     if (isPresentWeek) {
+
       completedArr = currentHabits.map((item) => {
 
 
-        return item.completionDays
+        return item.completionDays.filter((compDate) => {
+          let isEqual;
+          dates.map((date) => {
+            if (date === compDate.day) {
+              isEqual = true
+            }
+          })
+          if (isEqual)
+            return true;
+          return false
+        })
 
       })
 
 
     }
     else {
-      console.log('not current week')
+
 
       const stored = localStorage.getItem(storeName);
-      console.log(stored)
+
       completedArr = stored ? JSON.parse(stored) : [];
 
     }
@@ -211,7 +229,7 @@ function Home({ currentHabits, user, handleCompleted, setCurrentHabits }) {
 
 
     localStorage.setItem(storeName, JSON.stringify(completedArr))
-    console.log(completedArr)
+
     setCurrWeekCompDates(completedArr)
 
   }
@@ -222,11 +240,12 @@ function Home({ currentHabits, user, handleCompleted, setCurrentHabits }) {
 
   useEffect(() => {
     let isPresentWeek = false
-    dates.map((item) => {
-      console.log(item === today.day)
+    dates.map((item, index) => {
+
 
       if ((item === today.day) && (selectedMonthLeft === today.month || selectedMonthRight === today.month)) {
-        isPresentWeek = true
+        if ((today.weekDay === index))
+          isPresentWeek = true
 
       }
 
@@ -246,7 +265,7 @@ function Home({ currentHabits, user, handleCompleted, setCurrentHabits }) {
     if (isPresentWeekSelected) {
       const { isSelected, isInvalid } = handleCompleted(index, dayIndex, today);
       isSelected ? e.target.classList.add('bg-green-300') : e.target.classList.remove('bg-green-300');
-      isSelected ? e.target.textContent = '✓' : e.target.textContent = ''
+      // isSelected ? e.target.textContent = '✓' : e.target.textContent = ' '
       isInvalid ? setTopMessage('Cannot mark days in future or before the habit was added.') : setTopMessage('')
     }
     else {
@@ -258,7 +277,7 @@ function Home({ currentHabits, user, handleCompleted, setCurrentHabits }) {
   }
 
   useEffect(() => {
-    console.log(currWeekCompDates)
+
   }, [currWeekCompDates])
 
   useEffect(() => {
@@ -270,7 +289,7 @@ function Home({ currentHabits, user, handleCompleted, setCurrentHabits }) {
       if (today.day === dates[0]) {
         const value = localStorage.getItem(storeName) || ''
         if (value === '') {
-          console.log('not updated')
+
           newHabits = currentHabits.map((item) => {
             return ({ ...item, completionDays: [] })
 
@@ -323,15 +342,13 @@ function Home({ currentHabits, user, handleCompleted, setCurrentHabits }) {
 
 
           {currentHabits.map((item, index) => {
-            console.log(item.addedDate.day === dates[index])
-            console.log(item.addedDate.day)
 
-            console.log(today.day)
 
             return (
               <div key={index} className='contents text-center'>
                 <p className='self-center'>{item.habit}</p>
-                {dates.map((date, dayIndex) => <button key={dayIndex} className={`border-2 h-10 w-10 justify-self-center ${handleReload(currWeekCompDates[index], date) ? ' bg-green-300' : null} ${(item.addedDate.day === date) && (item.addedDate.month === today.month || item.addedDate.month === selectedMonthLeft) ? 'border-gray-400' : null} `} onClick={(e) => { completedHandle(e, index, dayIndex, today, date) }}> {handleReload(currWeekCompDates[index], date) ? '✓' : ' '} </button>)}
+
+                {dates.map((date, dayIndex) => <button key={dayIndex} className={`border-2 h-10 w-10 justify-self-center ${handleReload(currWeekCompDates[index], date) ? ' bg-green-300' : null} ${(item.addedDate.day === date) && (item.addedDate.month === selectedMonthRight || item.addedDate.month === selectedMonthLeft) ? 'border-gray-400' : null} `} onClick={(e) => { completedHandle(e, index, dayIndex, today, date) }}> {handleReload(currWeekCompDates[index], date) ? '✓' : ' '} </button>)}
                 <p className='justify-self-center self-center'>{item.goal}</p>
 
                 <p className={`justify-self-center self-center  ${item.goal <= currWeekCompDates[index]?.length ? 'bg-green-500' : null} w-full`}>{currWeekCompDates[index] ? currWeekCompDates[index].length : 0}</p>
